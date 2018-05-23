@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+<body>
+<h1>Dinosaurs!</h1>
+
+    <% dinosaurs.forEach(dinosaurs => { %>
+        <h2>
+            <%= dinosaurs.name %>
+        </h2>
+        <p>
+            <%= dinosaurs.period %>
+        </p>
+        <% }) %>
+
+</body>
+</html>

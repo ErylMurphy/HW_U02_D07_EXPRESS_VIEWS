@@ -1,39 +1,28 @@
 const express = require("express");
 const app = express();
+const dinosaurs = require("./dinosaurs");
 const bodyParser = require("body-parser");
 const path = require("path");
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+const PORT = process.env.PORT || 5678;
+app.use(express.static('public'))
+app.use(express.static(__dirname + '/public'));
+app.set('view engine', 'ejs');
 
-const dinosaurs = {};
-
-const buildHTML = () => {
-  return (
-    "<html><head><style>img { max-width: 150px;}</style></head><body><h1>Dinoland</h1>" +
-    Object.keys(dinosaurs).map(
-      dinoIndex =>
-        "<div><h2> ID " +
-        dinoIndex.toString() +
-        ": " +
-        dinosaurs[dinoIndex].name +
-        "</h2><img src='" +
-        dinosaurs[dinoIndex].image_url +
-        "' /></div>"
-    ) +
-    "</body></html>"
-  );
-};
 
 app.get("/dinosaurs", (request, response) => {
-  response.send(buildHTML());
-});
+  response.render('index',{
+    dinosaurs: dinosaurs,
+  })
+})
 
-app.get("/dinosaurs/new", (request, response) => {
-  response.sendFile(path.join(__dirname, "index.html"));
-});
 
-app.get("/dinosaurs.json", (request, response) => {
-  response.json(dinosaurs);
-});
+app.get("/dinosaurs/:id", (request, response) => {
+  const x = request.params.id;
+  response.render('show', {
+    dinosaur: dinosaurs[x],
+  });
+})
 
 const getNextKey = object => {
   let index = 1;
@@ -48,7 +37,7 @@ app.post("/dinosaurs", (request, response) => {
   console.log(request.body);
   const index = getNextKey(dinosaurs);
   if (!request.body.name || !request.body.image_url) {
-    res
+    response
       .status(400)
       .send(
         "A dinosaur needs a name and an image_url passed in the request body."
@@ -62,16 +51,6 @@ app.post("/dinosaurs", (request, response) => {
   response.status(201).send(index.toString());
 });
 
-app.get("/dinosaurs/:id.json", (request, response) => {
-  const id = Number(request.params.id);
-
-  if (!id in dinosaurs) {
-    response.status(404).send("There is no dinosaur with id " + id.toString());
-    return;
-  }
-
-  response.json(dinosaurs[id]);
-});
 
 app.put("/dinosaurs/:id", (request, response) => {
   const id = Number(request.params.id);
